@@ -1,12 +1,25 @@
-print "starting"
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from config import config
 
 db = SQLAlchemy()
-from factory import creat_app
-#db.init_app(app)
 
-app = creat_app()
+def creat_app(config_name):
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
+    db.init_app(app)
+    from .blueprints import bp as todo_blueprint
+    app.register_blueprint(todo_blueprint)
+    register_cli(app)
+    return app
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-#db = SQLAlchemy(app)
-db.init_app(app)
+def register_cli(app):
+    @app.cli.command('initdb')
+    def initdb_command():
+        """Creates the database tables."""
+        init_db()
+        print('Initialized the database.')
+
+def init_db():
+    print "Iam Initialized"
+    db.create_all()

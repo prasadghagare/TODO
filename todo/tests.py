@@ -1,52 +1,31 @@
-from todo import app
 import unittest
 from flask import request
 from todo.models import Item
-from todo import db
+from todo import creat_app,db
 import tempfile , os
 
 class HomePageTest(unittest.TestCase):
 
 
     def setUp(self):
-        self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
-        app.testing = True
-        self.app = app.test_client()
-        with app.app_context():
-            db.create_all()
+        self.app = creat_app('test')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
 
     def tearDown(self):
-        os.close(self.db_fd)
-        os.unlink(app.config['DATABASE'])
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
 
-    def test_root_url_resolve_to_view(self):
-        return None
-        #print app.view_functions
-        #self.assertEquals(found, "index")
-        #for rule in app.url_map.iter_rules():
-            #print "rule",rule, rule.endpoint
-
-    def test_home_page_returns_correct_code(self):
-        #tester = app.test_client(self)
-        response = self.app.get('/',content_type = 'html/text')
-        #print response
-        self.assertEquals(response.status_code , 200)
-
-    def test_home_page_returns_correct_html(self):
-        #tester = app.test_client(self)
-
-        response = self.app.get('/',content_type = 'html/text')
-        print response.data
-        self.assertIn('<title>To-Do lists</title>', response.data)
 
     def test_can_save_Post_request(self):
-        #tester = app.test_client(self)
-        with app.app_context():
-            response = self.app.post('/', data= {'item_text': 'my list'})
-            item = Item.query.filter_by(text = 'my list').first()
-            print "items is", item.text
-            self.assertEquals(item.text ,'my list')
-            self.assertEquals(response.location, 'http://localhost/')
+        db.create_all()
+        tester = self.app.test_client(self)
+        response = tester.post('/', data= {'item_text': 'my list'})
+        item = Item.query.filter_by(text = 'my list').first()
+        print "items is", item.text
+        self.assertEquals(item.text ,'my list')
+        self.assertEquals(response.location, 'http://localhost/')
 
 class ItemModelTest(unittest.TestCase):
 
