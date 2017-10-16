@@ -13,8 +13,13 @@ class TestConfig(Config):
     TESTING=True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test.db')
 
+class FuncTestConfig(Config):
+    TESTING=True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'func_test.db')
+
 config = {
     'runtime' : RunConfig,
     'test' : TestConfig,
-    'default': RunConfig
+    'default': RunConfig,
+    'func_test': FuncTestConfig
 }
