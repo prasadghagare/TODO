@@ -9,9 +9,11 @@ MAX_WAIT = 10
 class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
+        print "I am setup"
         self.browser = webdriver.Firefox()
 
     def tearDown(self):
+        print "I am tear"
         self.browser.quit()
 
     def wait_for_row_in_list_table(self, row_text):
@@ -70,13 +72,54 @@ class NewVisitorTest(unittest.TestCase):
             any(row.text == '1: Buy peacock feathers' for row in rows),
             "New to-do item did not appear in table"
         )"""
-
+        self.browser.quit()
 
         # There is still a text box inviting her to add another item. She
         # enters "Use peacock feathers to make a fly" (Edith is very
         # methodical)
-        self.fail('Finish the test!')
 
+    def test_multiple_users_can_start_lists_at_different_url(self):
+        #self.browser = webdriver.Firefox()
+        #Edith starts a list
+        self.browser.get("http://localhost:5000")
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys("Buy peacock feathers")
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table("1: Buy peacock feathers")
+
+        #Check that the list has unique URL
+        edith_list_url = self.browser.current_url
+        #Check that the URL is RESTish, assertRegex is from unittest module
+        self.assertRegexpMatches(edith_list_url, '/lists/.+')
+
+        #Now a new user comes and starts list
+        #For mocking new user, we exit current browser instance(session)
+        self.browser.quit()
+        #Start a new session
+        self.browser = webdriver.Firefox()
+        #Now next user , Fracis visits the site
+        self.browser.get("http://localhost:5000")
+        #Following code checks there is no any signs of Edith's list
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make hen', page_text)
+
+        # Francis starts a new list by entering a new item. He
+        # is less interesting than Edith...
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Buy milk')
+
+        # Francis gets his own unique URL
+        francis_list_url = self.browser.current_url
+        self.assertRegexpMatches(francis_list_url, '/lists/.+')
+        self.assertNotEqual(francis_list_url, edith_list_url)
+
+        #Again, following code checks there is no any signs of Edith's list
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make hen', page_text)
 
 if __name__ == '__main__':
     unittest.main()

@@ -40,5 +40,5 @@ nosetests.xml
 *.db
 # Virtual environment
 .venv
-
+*.notes
 geckodriver.log
