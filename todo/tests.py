@@ -17,21 +17,6 @@ class HomePageTest(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-
-    def test_can_save_Post_request(self):
-        db.create_all()
-        tester = self.app.test_client(self)
-        tester.post('/', data= {'item_text': 'my list'})
-        item = Item.query.filter_by(text = 'my list').first()
-        self.assertEquals(item.text ,'my list')
-
-    def test_redirect_after_post(self):
-        db.create_all()
-        tester = self.app.test_client(self)
-        response = tester.post('/', data= {'item_text': 'my list'})
-        self.assertEquals(response.status_code,302)
-        self.assertEquals(response.location, 'http://localhost/lists/the-only-list-in-the-world')
-
 class ItemModelTest(unittest.TestCase):
 
     def test_saving_and_retreiving_items(self):
@@ -61,6 +46,32 @@ class ListViewTest(unittest.TestCase):
         response = tester.get('/lists/the-only-list-in-the-world')
         if not (response.data.find("itemey 1") > 0 and response.data.find("itemey 2") > 0):
             self.fail('items not inserted')
+
+class NewListTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.app = creat_app('test')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_can_save_Post_request(self):
+        db.create_all()
+        tester = self.app.test_client(self)
+        tester.post('/lists/new', data= {'item_text': 'my list'})
+        item = Item.query.filter_by(text = 'my list').first()
+        self.assertEquals(item.text ,'my list')
+
+    def test_redirect_after_post(self):
+        db.create_all()
+        tester = self.app.test_client(self)
+        response = tester.post('/lists/new', data= {'item_text': 'my list'})
+        self.assertEquals(response.status_code,302)
+        self.assertEquals(response.location, 'http://localhost/lists/the-only-list-in-the-world')
 
 if __name__ == '__main__':
     unittest.main()

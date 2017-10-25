@@ -5,22 +5,18 @@ from .. import db
 
 
 
-@bp.route("/",methods=['GET', 'POST'])
+@bp.route("/",methods=['GET'])
 def index():
-    if request.method == 'POST':
-        print "get me good"
-        text = Item(text = request.form.get('item_text'))
-        db.session.add(text)
-        #db.session.add()
-        db.session.commit()
-        print "commited"
-        return redirect('/lists/the-only-list-in-the-world')
-        #return render_template('index.html',new_item_text = request.form.get('item_text'))
-    items = Item.query.with_entities(Item.text)
-    print "are htese itms", items
-    return render_template('index.html', items = items)
+    return render_template('index.html')
 
 @bp.route("/lists/the-only-list-in-the-world", methods=['GET'])
 def view_list():
     items = Item.query.with_entities(Item.text)
     return render_template('list.html', items = items)
+
+@bp.route("/lists/new", methods =['POST'])
+def new_list():
+    text = Item(text = request.form.get('item_text'))
+    db.session.add(text)
+    db.session.commit()
+    return redirect('/lists/the-only-list-in-the-world')
