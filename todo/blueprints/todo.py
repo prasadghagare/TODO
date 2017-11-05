@@ -1,6 +1,6 @@
 from . import bp
 from flask import render_template, request, make_response, redirect, current_app, g
-from ..models import Item
+from ..models import Item, List
 from .. import db
 
 
@@ -16,7 +16,12 @@ def view_list():
 
 @bp.route("/lists/new", methods =['POST'])
 def new_list():
-    text = Item(text = request.form.get('item_text'))
-    db.session.add(text)
+
+    list_ = List()
+
+    text = Item(text = request.form.get('item_text'), list_if = list_)
+
+    db.session.add(list_)
     db.session.commit()
+
     return redirect('/lists/the-only-list-in-the-world')
