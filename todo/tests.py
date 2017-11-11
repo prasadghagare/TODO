@@ -2,7 +2,7 @@ import unittest
 from flask import request
 from todo.models import Item, List
 from todo import creat_app,db
-import tempfile , os
+import tempfile , os, time
 
 class HomePageTest(unittest.TestCase):
 
@@ -55,13 +55,17 @@ class ListViewTest(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def test_displays_all_items(self):
+    def test_displays_only_items_for_that_list(self):
         db.create_all()
         tester = self.app.test_client(self)
         tester.post('/lists/new', data= {'item_text': 'itemey 1'})
         tester.post('/lists/new', data= {'item_text': 'itemey 2'})
-        response = tester.get('/lists/the-only-list-in-the-world')
-        if not (response.data.find("itemey 1") > 0 and response.data.find("itemey 2") > 0):
+
+        response_1 = tester.get('/lists/1')
+
+        response_2 = tester.get('/lists/2')
+
+        if not (response_1.data.find("itemey 1") > 0 and response_2.data.find("itemey 2") > 0):
             self.fail('items not inserted')
 
 class NewListTestCase(unittest.TestCase):
@@ -88,7 +92,28 @@ class NewListTestCase(unittest.TestCase):
         tester = self.app.test_client(self)
         response = tester.post('/lists/new', data= {'item_text': 'my list'})
         self.assertEquals(response.status_code,302)
-        self.assertEquals(response.location, 'http://localhost/lists/the-only-list-in-the-world')
+        self.assertEquals(response.location, 'http://localhost/lists/1')
+
+class NewItemTest(unittest.TestCase):
+
+    def setUp(self):
+        self.app = creat_app('test')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_can_save_POST_request_to_existing_list(self):
+        db.create_all()
+        tester = self.app.test_client(self)
+        tester.post('/lists/new', data= {'item_text': 'my list'})
+        tester.post('/lists/1/add_item', data= {'item_text': 'a new item in existing list'})
+        response_1 = tester.get('/lists/1')
+        if not (response_1.data.find("my list") > 0 and response_1.data.find("a new item in existing list") > 0):
+            self.fail('items not inserted')
 
 if __name__ == '__main__':
     unittest.main()
