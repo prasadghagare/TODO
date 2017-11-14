@@ -8,10 +8,12 @@ class Config:
 class RunConfig(Config):
     DEBUG=True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'run.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class TestConfig(Config):
     TESTING=True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class FuncTestConfig(Config):
     TESTING=True

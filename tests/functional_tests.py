@@ -9,11 +9,9 @@ MAX_WAIT = 10
 class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
-        print "I am setup"
         self.browser = webdriver.Firefox()
 
     def tearDown(self):
-        print "I am tear"
         self.browser.quit()
 
     def wait_for_row_in_list_table(self, row_text):

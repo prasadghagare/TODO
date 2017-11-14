@@ -1,20 +1,16 @@
-<html>
-    <head>
-        <title>To-Do lists</title>
-    </head>
-    <body>
-        <h1>Your To-Do list</h1>
-        <form method="POST" action="/lists/{{list_id}}/add_item" >
-        <input name="item_text" id="id_new_item" placeholder="Enter a To-Do item"/>
-      </form>
-        <table id="id_list_table">
-          <ul class="items">
-          {% for item in items %}
-          <tr><td>{{loop.index}}: {{ item[0] }}</td></tr>
-          {% endfor %}
-          </ul>
-      </table>
-</body>
-    </table>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block header %}Your To-Do list{% endblock %}
+
+{% block action %}/lists/{{list_id}}/add_item{% endblock %}
+
+
+{% block table %}
+<table id="id_list_table">
+  <ul class="items">
+    {% for item in items %}
+             <tr><td>{{loop.index}}: {{ item[0] }}</td></tr>
+             {% endfor %}
+   </ul>
+ </table>
+{% endblock %}
