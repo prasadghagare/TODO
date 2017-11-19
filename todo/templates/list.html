@@ -6,7 +6,8 @@
 
 
 {% block table %}
-<table id="id_list_table">
+<!following class table is from bootstrap to embiggen the list>
+<table id="id_list_table" class ="table">
   <ul class="items">
     {% for item in items %}
              <tr><td>{{loop.index}}: {{ item[0] }}</td></tr>
