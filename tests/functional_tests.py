@@ -3,6 +3,7 @@ import unittest
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 import time
+import os
 
 MAX_WAIT = 10
 
@@ -10,6 +11,10 @@ class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        self.live_server_url = "http://localhost:5000"
+        staging_server = os.environ.get('STAGING_SERVER')
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
 
     def tearDown(self):
         self.browser.quit()
@@ -29,7 +34,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def test_can_start_A_list_And_retrieve_later(self):
 
-        self.browser.get("http://localhost:5000")
+        self.browser.get(self.live_server_url)
 
         self.assertIn ('To-Do' , self.browser.title)
 
@@ -79,7 +84,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_multiple_users_can_start_lists_at_different_url(self):
         #self.browser = webdriver.Firefox()
         #Edith starts a list
-        self.browser.get("http://localhost:5000")
+        self.browser.get(self.live_server_url)
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys("Buy peacock feathers")
         inputbox.send_keys(Keys.ENTER)
@@ -96,7 +101,7 @@ class NewVisitorTest(unittest.TestCase):
         #Start a new session
         self.browser = webdriver.Firefox()
         #Now next user , Fracis visits the site
-        self.browser.get("http://localhost:5000")
+        self.browser.get(self.live_server_url)
         #Following code checks there is no any signs of Edith's list
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', page_text)
