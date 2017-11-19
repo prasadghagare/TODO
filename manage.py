@@ -14,7 +14,7 @@ def register_cli(app):
         print('Initialized the database.')
 
 def init_db():
-    print "Iam Initialized"
+    print ("Iam Initialized")
     db.create_all()
 
 register_cli(app)
